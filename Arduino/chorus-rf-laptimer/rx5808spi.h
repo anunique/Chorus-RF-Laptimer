@@ -27,8 +27,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// rx5808 module needs >20ms to tune.
-#define MIN_TUNE_TIME 25
+// rx5808 module needs >30ms to tune.
+#define MIN_TUNE_TIME 30
 
 void setupSPIpins() {
     // SPI pins for RX control
@@ -75,17 +75,10 @@ void SERIAL_ENABLE_HIGH() {
     delayMicroseconds(1);
 }
 
-void setChannelModule(uint8_t channel, uint8_t band, uint16_t newfreq) {
+uint16_t setModuleFrequency(uint16_t frequency) {
     uint8_t i;
     uint16_t channelData;
-    if (newfreq == 0)
-    {
-        frequency = pgm_read_word_near(channelFreqTable + channel + (8 * band));
-    }
-    else 
-    {
-        frequency = newfreq;
-    }
+
     channelData = frequency - 479;
     channelData /= 2;
     i = channelData % 32;
@@ -95,6 +88,7 @@ void setChannelModule(uint8_t channel, uint8_t band, uint16_t newfreq) {
     // bit bang out 25 bits of data
     // Order: A0-3, !R/W, D0-D19
     // A0=0, A1=0, A2=0, A3=1, RW=0, D0-19=0
+ 
     SERIAL_ENABLE_HIGH();
     delayMicroseconds(1);
     SERIAL_ENABLE_LOW();
@@ -157,6 +151,14 @@ void setChannelModule(uint8_t channel, uint8_t band, uint16_t newfreq) {
     digitalLow(slaveSelectPin);
     digitalLow(spiClockPin);
     digitalLow(spiDataPin);
-
+ 
+    
     delay(MIN_TUNE_TIME);
+    
+    return frequency;
+}
+
+uint16_t setModuleChannel(uint8_t channel, uint8_t band) {
+    uint16_t frequency = pgm_read_word_near(channelFreqTable + channel + (8 * band));
+    return setModuleFrequency(frequency);
 }

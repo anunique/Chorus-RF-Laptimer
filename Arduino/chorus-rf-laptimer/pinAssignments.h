@@ -29,7 +29,7 @@ SOFTWARE.
 
 // Pin definitions
 
-#define led 13
+#define ledPin 13
 #define spiDataPin 10
 #define slaveSelectPin 11
 #define spiClockPin 12
@@ -41,4 +41,6 @@ SOFTWARE.
 #ifdef DEBUG
     #define loopTimerPin 4
     #define serialTimerPin 3
+    #define bufferBusyPin 7
+    #define dbgPin 6
 #endif
