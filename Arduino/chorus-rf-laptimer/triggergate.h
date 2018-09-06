@@ -21,8 +21,6 @@ uint8_t g_channel = 0;
 int16_t g_brightness = -1;
 bool g_racestarted = false;
 uint16_t readRSSI();
-unsigned long currentMillis;
-unsigned long previousMillis;
 Adafruit_NeoPixel strip;
 uint32_t Wheel(byte WheelPos) {
   if(WheelPos < 85) {
@@ -92,8 +90,6 @@ void TriggerGateInit() {
     strip = Adafruit_NeoPixel(g_Settings.pixels, WS2812BPin, NEO_GRB + NEO_KHZ800);
     strip.begin();
     strip.show();
-    currentMillis = millis();
-    previousMillis = millis();
     unsigned int i;
     for(i = 0 ; i < strip.numPixels() ; i++)
     {
@@ -106,7 +102,6 @@ void TriggerGateInit() {
 void StandaloneTriggerGate()
 {
   int i,_r,_g,_b;
-  currentMillis = millis();
   int rssi1=0, rssi2;
   for (i = 0 ; i < g_Settings.channels; i++)
   {
@@ -134,21 +129,17 @@ void StandaloneTriggerGate()
     }
     g_brightness--;
     strip.show();
-    previousMillis = currentMillis;
   }
   else
   {
-    if ((unsigned long)(currentMillis - previousMillis) >= 60000)
+    if (g_racestarted == true)
     {
-      if (g_racestarted == true)
+      g_racestarted = false;
+      for(i = 0 ; i < strip.numPixels() ; i++)
       {
-        g_racestarted = false;
-        for(i = 0 ; i < strip.numPixels() ; i++)
-        {
-          strip.setPixelColor(i, Wheel(i * 255/strip.numPixels()));
-        }
-        strip.show();
+        strip.setPixelColor(i, Wheel(i * 255/strip.numPixels()));
       }
+      strip.show();
     }    
   }
 }
